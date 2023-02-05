@@ -1,62 +1,28 @@
-import cv2 as cv
+import cv2
 import numpy as np
 
-cap = cv.VideoCapture(0)
 
-# change resolution based on dslr input
-# cap.set(3, 1280)
-# cap.set(4, 720)
+def detectBall(frame):    
+    # Convert the frame to grayscale
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-r, frame = cap.read()
-
-# print('Resolution: ' + str(frame.shape[0]) + ' x ' + str(frame.shape[1]))
-
-prevCircle = None
-def dist(x1, y1, x2, y2): return (x1-x2)**2+(y1-y2)**2
-
-while(True):
-    ret, frame = cap.read()
-    if not ret:
-        break
-
-    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    blurred = cv.GaussianBlur(gray, (5, 5), 0)
-
-    # change all the parameter values to adjust the circle detection sensitivity 
-    # according of the ball dimenstions and the environment variables
-    circles = cv.HoughCircles(blurred, cv.HOUGH_GRADIENT,
-                               1.2, 50, param1=100, param2=30, minRadius=25, maxRadius=50)
-
-    if circles is not None:
-        
-        circles = np.uint16(np.around(circles))
-        chosen = None
-
-        for i in circles[0, :]:
-            if chosen is None:
-                chosen = i
-            if prevCircle is not None:
-                if dist(chosen[0], chosen[1], prevCircle[0], prevCircle[1]) <= dist(i[0], [1], prevCircle[0], prevCircle[1]):
-                    chosen = i
-        
-        cv.circle(frame, (chosen[0], chosen[1]), 1, (0, 100, 100), 3)
-        cv.circle(frame, (chosen[0], chosen[1]), chosen[2], (255, 0, 255), 3)
-        prevCircle = chosen
-
-
-        circles = np.round(circles[0, :]).astype("int")
-
-        for (x, y, r) in circles:
-            cv.circle(frame, (x, y), 1, (0, 0, 255), 3)
-
-            # prints coordinates of circle center            
-            print("(",x, ",", y,")")
-
-    cv.imshow("Frame", frame)
-
-    if cv.waitKey(1) & 0xFF == ord('q'):
-        break
-
+    # Apply GaussianBlur to reduce noise
+    gray = cv2.GaussianBlur(gray, (5, 5), 0)
     
-cap.release()
-cv.destroyAllWindows()
+    # Use the HoughCircles function to detect circles in the grayscale image
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=15, maxRadius=25)
+    
+    ballCoordinates = []
+    # Check if the HoughCircles function has detected any circles
+    if circles is not None:
+        # Convert the (x, y) coordinates and radius of the circles to integers
+        circles = np.round(circles[0, :]).astype("int")
+        
+        # Loop through the circles and draw a circle around each one
+        for (x, y, r) in circles:
+            ballCoordinates.append((x, y))
+            # cv2.circle(frame, (x, y), r, (0, 255, 0), 4)
+            # cv2.rectangle(frame, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
+            # print(f'{x}, {y}, {r}')
+    
+    return ballCoordinates

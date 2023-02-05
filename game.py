@@ -22,22 +22,31 @@ class Game:
         self.balloon_width = self.balloon_img.get_width()
         self.distance_between_balloons = self.balloon_width + self.min_distance_between_balloon
 
+        # Calliberate
+        self.dots = []
+
         # Set up font
         self.score_font = pygame.font.Font(None, 30)
 
         # Set up the game window
-        self.window_size = (1200, 1000)
+        self.window_size = (1200, 700)
         self.screen = pygame.display.set_mode(self.window_size)
 
         # Create the game objects
         self.balloons = []
         self.clock = pygame.time.Clock()
 
+
+        # ball coordinates
+        self.x_ball = None
+        self.y_ball = None
+
         pygame.init()
     
 
     def start_game(self):
-
+        black = (0, 0, 0)
+        green = (0, 255, 0)
         # Game loop
         running = True
         while running:
@@ -45,6 +54,10 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                if event.type == pygame.MOUSEBUTTONUP:
+                    pos = pygame.mouse.get_pos()
+                    self.dots.append(pos)
+                  
 
             # Spawn balloons
             if len(self.balloons) < 1 and time.time() - self.last_spawn_time >= self.spawn_interval:
@@ -58,8 +71,8 @@ class Game:
             # Check if balloons are popped
             mouse_pos = pygame.mouse.get_pos()
             for i, b in enumerate(self.balloons):
-                x, y = b
-                if x < mouse_pos[0] < x + self.balloon_img.get_width() and y < mouse_pos[1] < y + self.balloon_img.get_height():
+                
+                if self.x_ball < mouse_pos[0] < self.x_ball + self.balloon_img.get_width() and self.y_ball < mouse_pos[1] < self.y_ball + self.balloon_img.get_height():
                     self.balloons.pop(i)
                     self.popped_balloons += 1
                     break
@@ -70,11 +83,11 @@ class Game:
                 self.screen.blit(self.balloon_img, (x, y))
                 y -= 3
                 self.balloons[i] = (x, y)
-            pygame.display.update()
+   
             
             # Check if balloons have left the screen
             self.balloons = [b for b in self.balloons if b[1] > - self.balloon_img.get_height()]
-            self.missed_balloons += 3 - len(self.balloons)
+            # self.missed_balloons += 3 - len(self.balloons)
             
             # Show the score
             font = pygame.font.Font(None, 36)
@@ -90,6 +103,10 @@ class Game:
 
             screen.blit(popped_balloons_text, (10, 10))
             screen.blit(missed_balloons_text, (window_size[0] - 160, 10)) """
+
+            for dot in self.dots:
+                pygame.draw.circle(self.screen, green, dot, 20, 0)
+                
             
             pygame.display.update()
             
