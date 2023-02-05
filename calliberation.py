@@ -9,9 +9,6 @@ class Game:
         # Load the assets
         self.balloon_img = pygame.image.load("./resources/balloon_purple.png")
 
-        # Game Init
-        pygame.font.init()
-
         # calliberation coordinates
         # self.topLeft = None
         # self.topRight = None
@@ -38,6 +35,7 @@ class Game:
         # Game loop
         running = True
         while running:
+            print(True)
             # Handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -58,8 +56,11 @@ class Game:
         pygame.quit()
 
 
-class Calliberate:
-    def detectCircle(frame):    
+
+def startCircleDetection():  
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
         # Convert the frame to grayscale
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -78,17 +79,26 @@ class Calliberate:
             # Loop through the circles and draw a circle around each one
             for (x, y, r) in circles:
                 calliberateCircleCoordinates.append((x, y))
-                # cv2.circle(frame, (x, y), r, (0, 255, 0), 4)
-                # cv2.rectangle(frame, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
-                # print(f'{x}, {y}, {r}')
-        return calliberateCircleCoordinates
+                cv2.circle(frame, (x, y), r, (0, 255, 0), 4)
+                cv2.rectangle(frame, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
+                print(f'{x}, {y}, {r}')
+        cv2.imshow('Frame', frame)
+        # if len(calliberateCircleCoordinates) == 4:
+        #     break
 
 
 if __name__ =="__main__":
     game = Game()
-    calliberation = Calliberate()
+    # calliberation = Calliberate()
 
-    drawingBoard = threading.Thread(target=game.start_calliberation)
-    drawingBoard.start()
+    calliberationGame = threading.Thread(target=game.start_calliberation)
+    
+    # openCv = threading.Thread(target=calliberation.startCircleDetection)
 
-    calliberation.detectCircle()
+    calliberationGame.start()
+    # openCv.start()
+
+    # game.start_calliberation()
+    
+    # startCircleDetection()
+    

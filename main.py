@@ -17,17 +17,11 @@ def start_opencv():
         ret, img = vid.read()
         cv2.imshow('Original', img)
 
-        # imgBallons, balloonBoxes, ballBoxes = findBalloons(img)
-        # frames = detectHit(img, balloonBoxes)
         ballCoordinates = detectBall(img)
         for coordinates in ballCoordinates:
             balloonGame.x_ball, balloonGame.y_ball = coordinates
         
-        # cv2.imshow('Modified', imgBallons)
 
-        # the 'q' button is set as the
-        # quitting button you may use any
-        # desired button of your choice
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
